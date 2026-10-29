@@ -71,6 +71,20 @@ TCP provides a reliable stream of ordered bytes but does **not** preserve applic
 
 2. **Payload Field:** An $N$-byte string containing a valid JSON object specifying an operational action (`PUT`, `GET`, `ENQUEUE`, `DEQUEUE`).
 
+Example requests:
+
+```json
+{"action":"PUT","key":"username","value":"alice"}
+{"action":"GET","key":"username"}
+{"action":"ENQUEUE","item":{"job":"send_email"}}
+{"action":"DEQUEUE","timeout":5}
+```
+
+`PUT` stores or replaces a value. `GET` retrieves a value, `ENQUEUE` adds an
+item to the FIFO task queue, and `DEQUEUE` removes the oldest item. A dequeue
+with a `timeout` returns `EMPTY` if no item becomes available before the
+timeout; omitting `timeout` waits until an item is available.
+
 ---
 
 ## 📁 Repository Structure
@@ -142,7 +156,7 @@ python3  1234 vscode    3u  IPv4  23456      0t0  TCP *:9090 (LISTEN)
 
 ```
 
-### 3. Run the Concurrent Client Stress Harness
+### 4. Run the Concurrent Client Stress Harness
 
 In the secondary terminal, execute the 20-thread concurrent stress tester to verify that thread synchronization locks and message framing hold up under concurrent load:
 
