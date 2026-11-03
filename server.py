@@ -56,7 +56,8 @@ def process_request(
             or not isinstance(timeout, (int, float))
             or timeout < 0
         ):
-            raise ValueError("DEQUEUE timeout must be a non-negative number or null")
+            raise ValueError(
+                "DEQUEUE timeout must be a non-negative number or null")
         try:
             item = task_queue.dequeue(timeout=timeout)
         except TimeoutError:
@@ -68,12 +69,10 @@ def process_request(
 
 def handle_client(
     client_socket: socket.socket,
-    client_address: tuple[str, int],
     store: KeyValueStore,
     task_queue: TaskQueue,
 ) -> None:
     """Receive one request, execute it, and send one response."""
-    del client_address
     with client_socket:
         try:
             message = recv_message(client_socket)
@@ -90,7 +89,6 @@ def serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT,
         raise ValueError("max_workers must be at least 1")
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((host, port))
         server_socket.listen()
 
@@ -104,11 +102,10 @@ def serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT,
             store = KeyValueStore()
             task_queue = TaskQueue()
             while True:
-                client_socket, client_address = server_socket.accept()
+                client_socket, _ = server_socket.accept()
                 executor.submit(
                     handle_client,
                     client_socket,
-                    client_address,
                     store,
                     task_queue,
                 )
